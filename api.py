@@ -73,6 +73,25 @@ def todo(id):
     except Exception as e:
 
         return not_found(e)
+
+@app.route('/delete/<id>', methods=['GET'])
+def delete_todo(id):
+
+	try:
+
+		con = mysql.connect()
+		cur = con.cursor()
+		cur.execute("DELETE FROM todo.todo WHERE id = %s", id)
+		con.commit()
+		resp = jsonify('Task deleted successfully!')
+		resp.status_code = 200
+
+		return resp
+
+	except Exception as e:
+
+		 return not_found(e)
+		
 	
 @app.errorhandler(404)
 def not_found(error):
