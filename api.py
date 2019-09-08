@@ -28,7 +28,7 @@ def add_user():
             #JSON response
             resp = jsonify('Task added succesfully!')
             resp.status_code = 200
-            print (resp)
+
             return resp
         else:
 
@@ -37,6 +37,54 @@ def add_user():
     except Exception as e:
 
 		print (e)
+
+@app.route('/update', methods=['POST'])
+def update_user():
+
+    try:
+
+        json = request.json
+        id = json['id']
+        name = json['name']
+        task = json['task']
+
+        if id and name and task and request.method == 'POST':
+
+            #Connect to db
+            con = mysql.connect()
+            cur = con.cursor()
+
+            sql = "SELECT * FROM todo.todo where id="+str(id)
+            cur.execute(sql)
+            rec = cur.fetchall()
+
+            if len(rec) > 0:
+
+                #Initialize sql query and data
+                sql = "UPDATE todo.todo SET name=%s, task=%s WHERE id=%s"
+                data = (name, task, id)
+
+                cur.execute(sql, data)
+                con.commit()
+
+                #JSON response
+                resp = jsonify('Task updated succesfully!')
+                resp.status_code = 200
+
+            
+            else:
+                resp = jsonify('Id does not exist!')
+                resp.status_code = 404
+
+            return resp
+
+        else:
+
+            return not_found()
+            
+    except Exception as e:
+
+		return not_found(e)
         
 @app.route('/todos', methods=['GET'])
 def todos():
