@@ -38,11 +38,25 @@ def add_user():
 
 		print (e)
         
+@app.route('/todo', methods=['GET'])
+def todo():
+	try:
+		con = mysql.connect()
+		cur = con.cursor()
+		cur.execute("SELECT * FROM todo.todo")
+		rows = cur.fetchall()
+		resp = jsonify(rows)
+		resp.status_code = 200
+		return resp
+	except Exception as e:
+		return not_found(e)
+
 @app.errorhandler(404)
-def not_found(error=None):
+def not_found(error):
     message = {
         'status': 404,
         'message': 'Not Found: ' + request.url,
+        'error': error
     }
     resp = jsonify(message)
     resp.status_code = 404
