@@ -38,30 +38,49 @@ def add_user():
 
 		print (e)
         
-@app.route('/todo', methods=['GET'])
-def todo():
+@app.route('/todos', methods=['GET'])
+def todos():
 
 	try:
         
 		con = mysql.connect()
-		cur = con.cursor()
+		cur = con.cursor(pymysql.cursors.DictCursor)
 		cur.execute("SELECT * FROM todo.todo")
 		rows = cur.fetchall()
 		resp = jsonify(rows)
 		resp.status_code = 200
+
 		return resp
 
 	except Exception as e:
 
 		return not_found(e)
 
+@app.route('/todo/<id>', methods=['GET'])
+def todo(id):
+
+    try:
+
+        con = mysql.connect()
+        cur = con.cursor(pymysql.cursors.DictCursor)
+        cur.execute("SELECT * FROM todo.todo WHERE id= %s", id)
+        row = cur.fetchone()
+        resp = jsonify(row)
+        resp.status_code = 200
+        
+        return resp
+        
+    except Exception as e:
+
+        return not_found(e)
+	
 @app.errorhandler(404)
 def not_found(error):
 
     message = {
         'status': 404,
         'message': 'Not Found: ' + request.url,
-        'error': error
+        'error': str(error),
     }
 
     resp = jsonify(message)
@@ -70,6 +89,6 @@ def not_found(error):
     return resp
 
 if __name__ == '__main__':
-    
+
     app.debug = True
-    app.run(port=5001)
+    app.run(port=5000)
